@@ -27,7 +27,7 @@ const AdminDashboard = () => {
   const navigation = [
     { name: 'Dashboard', path: '/admin', icon: LayoutDashboard },
     { name: 'Products', path: '/admin/products', icon: Package },
-    { name: 'Orders', path: '/admin/orders', icon: ShoppingCart },
+    
     { name: 'Settings', path: '/admin/settings', icon: Settings },
   ];
 
