@@ -23,15 +23,15 @@ import Orders from './pages/Orders';
 import VehiclesPage from './pages/VehiclesPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import NotFound from './pages/NotFound';
-
+import ProtectedRoute from './components/common/ProtectedRoute';
 // Styles
 import './index.css';
 
 function App() {
   useEffect(() => {
     // Check for dark mode preference
-    if (localStorage.getItem('theme') === 'dark' || 
-        (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    if (localStorage.getItem('theme') === 'dark' ||
+      (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
@@ -43,7 +43,7 @@ function App() {
       <Router>
         <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-dark">
           <Navbar />
-          
+
           <main className="flex-grow">
             <Routes>
               <Route path="/" element={<Home />} />
@@ -56,14 +56,22 @@ function App() {
               <Route path="/register" element={<Register />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/orders" element={<Orders />} />
-              <Route path="/admin/*" element={<AdminDashboard />} />
+              {/* Admin Routes - Protected */}
+              <Route
+                path="/admin/*"
+                element={
+                  <ProtectedRoute requireAdmin={true}>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
-          
+
           <Footer />
           <WhatsAppFloat />
-          
+
           {/* Toast Notifications */}
           <Toaster
             position="top-right"

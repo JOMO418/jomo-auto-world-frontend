@@ -92,7 +92,7 @@ const Navbar = () => {
             </div>
             <div>
               <h1 className="font-impact text-xl text-white tracking-wider">
-                JOMO AUTO WORLD
+                BASELINE AUTO WORLD
               </h1>
               <p className="text-xs text-gray-400">Your Trusted Parts Partner</p>
             </div>

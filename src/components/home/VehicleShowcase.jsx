@@ -86,28 +86,7 @@ const VehicleShowcase = () => {
             <ChevronRight className="h-5 w-5" />
           </Link>
         </div>
-
-        {/* Stats Bar */}
-        <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6">
-          {[
-            { label: 'Vehicles Supported', value: '50+' },
-            { label: 'Parts Available', value: '5000+' },
-            { label: 'Happy Customers', value: '1200+' },
-            { label: 'Same Day Delivery', value: '98%' }
-          ].map((stat, index) => (
-            <div
-              key={index}
-              className="card p-6 text-center hover:shadow-xl transition-shadow"
-            >
-              <p className="text-3xl md:text-4xl font-bold text-primary mb-2">
-                {stat.value}
-              </p>
-              <p className="text-gray-600 dark:text-gray-400 text-sm">
-                {stat.label}
-              </p>
-            </div>
-          ))}
-        </div>
+   
       </div>
     </section>
   );

@@ -7,6 +7,7 @@ const initialState = {
   product: null,
   featured: [],
   bestSellers: [],
+  lowStock: [],
   isLoading: false,
   isError: false,
   message: '',
@@ -27,6 +28,8 @@ const initialState = {
     inStock: false
   }
 };
+
+// ========== PUBLIC ACTIONS ==========
 
 // Get all products
 export const getProducts = createAsyncThunk(
@@ -93,6 +96,86 @@ export const searchProducts = createAsyncThunk(
   }
 );
 
+// ========== ADMIN ACTIONS ==========
+
+// Get admin products
+export const getAdminProducts = createAsyncThunk(
+  'products/getAdmin',
+  async (params, thunkAPI) => {
+    try {
+      return await productService.getAdminProducts(params);
+    } catch (error) {
+      const message = error.response?.data?.message || error.message;
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+// Create product
+export const createProduct = createAsyncThunk(
+  'products/create',
+  async (productData, thunkAPI) => {
+    try {
+      return await productService.createProduct(productData);
+    } catch (error) {
+      const message = error.response?.data?.message || error.message;
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+// Update product
+export const updateProduct = createAsyncThunk(
+  'products/update',
+  async ({ id, productData }, thunkAPI) => {
+    try {
+      return await productService.updateProduct(id, productData);
+    } catch (error) {
+      const message = error.response?.data?.message || error.message;
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+// Delete product
+export const deleteProduct = createAsyncThunk(
+  'products/delete',
+  async (id, thunkAPI) => {
+    try {
+      return await productService.deleteProduct(id);
+    } catch (error) {
+      const message = error.response?.data?.message || error.message;
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+// Toggle visibility
+export const toggleVisibility = createAsyncThunk(
+  'products/toggleVisibility',
+  async (id, thunkAPI) => {
+    try {
+      return await productService.toggleProductVisibility(id);
+    } catch (error) {
+      const message = error.response?.data?.message || error.message;
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+// Get low stock
+export const getLowStock = createAsyncThunk(
+  'products/getLowStock',
+  async (_, thunkAPI) => {
+    try {
+      return await productService.getLowStockProducts();
+    } catch (error) {
+      const message = error.response?.data?.message || error.message;
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
 const productSlice = createSlice({
   name: 'products',
   initialState,
@@ -112,6 +195,10 @@ const productSlice = createSlice({
       state.products = [];
       state.isError = false;
       state.message = '';
+    },
+    clearMessage: (state) => {
+      state.message = '';
+      state.isError = false;
     }
   },
   extraReducers: (builder) => {
@@ -168,9 +255,110 @@ const productSlice = createSlice({
         state.isLoading = false;
         state.isError = true;
         state.message = action.payload;
+      })
+      // Get admin products
+      .addCase(getAdminProducts.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getAdminProducts.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.products = action.payload.products;
+        state.pagination = {
+          total: action.payload.total,
+          page: action.payload.page,
+          pages: action.payload.pages,
+          count: action.payload.count
+        };
+      })
+      .addCase(getAdminProducts.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+      })
+      // Create product
+      .addCase(createProduct.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(createProduct.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.products.unshift(action.payload.product);
+        state.message = 'Product created successfully';
+      })
+      .addCase(createProduct.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+      })
+      // Update product
+      .addCase(updateProduct.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(updateProduct.fulfilled, (state, action) => {
+        state.isLoading = false;
+        const index = state.products.findIndex(p => p._id === action.payload.product._id);
+        if (index !== -1) {
+          state.products[index] = action.payload.product;
+        }
+        state.message = 'Product updated successfully';
+      })
+      .addCase(updateProduct.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+      })
+      // Delete product
+      .addCase(deleteProduct.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(deleteProduct.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.products = state.products.filter(p => p._id !== action.meta.arg);
+        state.message = 'Product deleted successfully';
+      })
+      .addCase(deleteProduct.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+      })
+      // Toggle visibility
+      .addCase(toggleVisibility.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(toggleVisibility.fulfilled, (state, action) => {
+        state.isLoading = false;
+        const index = state.products.findIndex(p => p._id === action.payload.product._id);
+        if (index !== -1) {
+          state.products[index] = action.payload.product;
+        }
+        state.message = action.payload.message;
+      })
+      .addCase(toggleVisibility.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+      })
+      // Low stock
+      .addCase(getLowStock.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getLowStock.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.lowStock = action.payload.products;
+      })
+      .addCase(getLowStock.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
       });
   },
 });
 
-export const { resetProduct, setFilters, clearFilters, resetProducts } = productSlice.actions;
+export const { 
+  resetProduct, 
+  setFilters, 
+  clearFilters, 
+  resetProducts,
+  clearMessage 
+} = productSlice.actions;
+
 export default productSlice.reducer;

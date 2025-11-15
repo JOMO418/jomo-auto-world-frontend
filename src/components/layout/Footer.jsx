@@ -151,9 +151,24 @@ const Footer = () => {
               Terms of Service
             </Link>
             <span className="text-gray-600">|</span>
-            <p className="text-gray-400 text-sm">
-              Powered by <span className="text-white font-semibold">Brandy Software Solutions</span>
-            </p>
+            <div className="flex items-center gap-2">
+              <span className="text-gray-500 text-sm">Powered by</span>
+              <div className="flex items-center gap-2 bg-gradient-to-r from-yellow-500/10 to-yellow-600/10 px-4 py-2 rounded-lg border border-yellow-500/20">
+                <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="url(#jomo-gradient)" />
+                  <path d="M2 17L12 22L22 17M2 12L12 17L22 12" stroke="url(#jomo-gradient)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <defs>
+                    <linearGradient id="jomo-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#FFD700"/>
+                      <stop offset="100%" stopColor="#FFA500"/>
+                    </linearGradient>
+                  </defs>
+                </svg>
+                <span className="font-bold bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
+                  Jomo Software Solutions
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </div>

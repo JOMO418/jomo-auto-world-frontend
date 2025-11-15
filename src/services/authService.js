@@ -3,7 +3,7 @@ import api from './api';
 
 // Register user
 export const register = async (userData) => {
-  const response = await api.post('/api/auth/register', userData);
+  const response = await api.post('/auth/register', userData);
   
   if (response.data.token) {
     localStorage.setItem('token', response.data.token);
@@ -15,7 +15,7 @@ export const register = async (userData) => {
 
 // Login user
 export const login = async (userData) => {
-  const response = await api.post('/api/auth/login', userData);
+  const response = await api.post('/auth/login', userData);
   
   if (response.data.token) {
     localStorage.setItem('token', response.data.token);
@@ -33,7 +33,7 @@ export const logout = () => {
 
 // Get current user
 export const getMe = async () => {
-  const response = await api.get('/api/auth/me');
+  const response = await api.get('/auth/me');
   
   if (response.data.user) {
     localStorage.setItem('user', JSON.stringify(response.data.user));
@@ -44,7 +44,7 @@ export const getMe = async () => {
 
 // Update profile
 export const updateProfile = async (userData) => {
-  const response = await api.put('/api/auth/profile', userData);
+  const response = await api.put('/auth/profile', userData);
   
   if (response.data.user) {
     const currentUser = JSON.parse(localStorage.getItem('user'));
@@ -57,18 +57,18 @@ export const updateProfile = async (userData) => {
 
 // Forgot password
 export const forgotPassword = async (email) => {
-  const response = await api.post('/api/auth/forgot-password', { email });
+  const response = await api.post('/auth/forgot-password', { email });
   return response.data;
 };
 
 // Reset password
 export const resetPassword = async (token, password) => {
-  const response = await api.post(`/api/auth/reset-password/${token}`, { password });
+  const response = await api.post(`/auth/reset-password/${token}`, { password });
   return response.data;
 };
 
 // Change password
 export const changePassword = async (passwords) => {
-  const response = await api.put('/api/auth/change-password', passwords);
+  const response = await api.put('/auth/change-password', passwords);
   return response.data;
 };
