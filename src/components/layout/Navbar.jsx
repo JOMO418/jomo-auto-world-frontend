@@ -258,6 +258,15 @@ const Navbar = () => {
                 >
                   Orders
                 </Link>
+                {user.role === 'admin' && (
+                  <Link
+                    to="/admin"
+                    onClick={() => setIsOpen(false)}
+                    className="block px-4 py-3 text-primary hover:bg-gray-800 transition-colors font-bold"
+                  >
+                    🔧 Admin Panel
+                  </Link>
+                )}
                 <button
                   onClick={() => {
                     handleLogout();
