@@ -70,7 +70,7 @@ const Hero = () => {
                 className="text-6xl md:text-8xl text-[#F8EFE6] mb-2 leading-none tracking-tight"
                 style={{ fontFamily: "'Playfair Display', 'Cormorant Garamond', serif" }}
               >
-                BASELINE AUTO WORLD
+                JOMO AUTO WORLD
               </h1>
               
               {/* Elegant Divider */}
