@@ -120,7 +120,6 @@ const ImageUploader = ({ images = [], onChange, maxImages = 5 }) => {
           type="file"
           accept="image/*"
           multiple
-          capture="environment"
           onChange={handleFileSelect}
           className="hidden"
         />
