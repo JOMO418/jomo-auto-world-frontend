@@ -13,7 +13,7 @@ import {
 import { useDispatch } from 'react-redux';
 import { logout } from '../../redux/slices/authSlice';
 
-// Import admin pages (we'll create these next)
+// Import admin pages
 import AdminHome from './AdminHome';
 import ProductsManagement from './ProductsManagement';
 import OrdersManagement from './OrdersManagement';
@@ -27,7 +27,7 @@ const AdminDashboard = () => {
   const navigation = [
     { name: 'Dashboard', path: '/admin', icon: LayoutDashboard },
     { name: 'Products', path: '/admin/products', icon: Package },
-    
+    { name: 'Orders', path: '/admin/orders', icon: ShoppingCart },
     { name: 'Settings', path: '/admin/settings', icon: Settings },
   ];
 
@@ -44,82 +44,61 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Mobile Header */}
-      <header className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-white border-b border-gray-200 px-4 py-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="w-10 h-10 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
-            >
-              {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
-            <div>
-              <h1 className="text-lg font-bold text-black">Admin Panel</h1>
-              <p className="text-xs text-gray-500">Jomo Auto World</p>
-            </div>
-          </div>
-          
-          <button
-            onClick={handleLogout}
-            className="w-10 h-10 rounded-xl bg-red-50 hover:bg-red-100 flex items-center justify-center transition-colors"
-          >
-            <LogOut className="w-5 h-5 text-red-600" />
-          </button>
-        </div>
-      </header>
-
-      {/* Sidebar Overlay (Mobile) */}
-      {sidebarOpen && (
-        <div
-          className="lg:hidden fixed inset-0 bg-black/50 z-30"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
-      {/* Sidebar */}
-      <aside
-        className={`fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-200 z-40 transform transition-transform duration-300 ease-in-out ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } lg:translate-x-0`}
-      >
-        {/* Logo */}
+      
+      {/* DESKTOP SIDEBAR - Classic Professional */}
+      <aside className="hidden lg:flex fixed top-0 left-0 h-full w-64 bg-white border-r border-gray-200 flex-col z-40">
+        
+        {/* Logo Section */}
         <div className="h-16 flex items-center px-6 border-b border-gray-200">
           <div>
-            <h1 className="text-xl font-bold text-black">Admin Panel</h1>
-            <p className="text-xs text-gray-500">Jomo Auto World</p>
+            <h1 className="text-lg font-bold text-gray-900 uppercase tracking-wide">
+              Admin Panel
+            </h1>
+            <p className="text-xs text-gray-500 font-medium">
+              Jomo Auto World
+            </p>
           </div>
         </div>
 
-        {/* Navigation */}
-        <nav className="p-4 space-y-2">
-          {navigation.map((item) => {
-            const Icon = item.icon;
-            const active = isActive(item.path);
-            
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                onClick={() => setSidebarOpen(false)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${
-                  active
-                    ? 'bg-red-600 text-white shadow-lg shadow-red-600/30'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <Icon className="w-5 h-5" />
-                <span>{item.name}</span>
-              </Link>
-            );
-          })}
+        {/* Navigation - Classic Style */}
+        <nav className="flex-1 px-3 py-4">
+          <div className="mb-3 px-3">
+            <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              Navigation
+            </h3>
+          </div>
+          
+          <div className="space-y-1">
+            {navigation.map((item) => {
+              const Icon = item.icon;
+              const active = isActive(item.path);
+              
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`
+                    flex items-center gap-3 px-3 py-2.5 
+                    transition-all border-l-4 text-sm font-medium
+                    ${active
+                      ? 'border-red-600 bg-gray-100 text-gray-900 font-bold'
+                      : 'border-transparent text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    }
+                  `}
+                >
+                  <Icon className="w-5 h-5" />
+                  <span>{item.name}</span>
+                </Link>
+              );
+            })}
+          </div>
         </nav>
 
-        {/* Logout (Desktop) */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 hidden lg:block">
+        {/* Logout Button - Bottom */}
+        <div className="p-4 border-t border-gray-200">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all font-medium"
+            className="w-full flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all font-medium text-sm rounded-md border border-transparent hover:border-red-200"
           >
             <LogOut className="w-5 h-5" />
             <span>Logout</span>
@@ -127,9 +106,89 @@ const AdminDashboard = () => {
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="lg:ml-72 pt-16 lg:pt-0 min-h-screen">
-        <div className="p-4 md:p-6 lg:p-8">
+      {/* MOBILE - NO HEADER, Just Bottom Nav */}
+      {/* Sidebar Overlay (Mobile) */}
+      {sidebarOpen && (
+        <div
+          className="lg:hidden fixed inset-0 bg-black/50 z-40"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* Mobile Sidebar (when menu opened) */}
+      <aside
+        className={`
+          lg:hidden fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-200 z-50 
+          transform transition-transform duration-300 ease-in-out
+          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+        `}
+      >
+        {/* Mobile Sidebar Header */}
+        <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200">
+          <div>
+            <h1 className="text-lg font-bold text-gray-900 uppercase">
+              Admin Panel
+            </h1>
+            <p className="text-xs text-gray-500">Jomo Auto World</p>
+          </div>
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="w-10 h-10 rounded-md bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+          >
+            <X className="w-5 h-5 text-gray-700" />
+          </button>
+        </div>
+
+        {/* Mobile Navigation */}
+        <nav className="px-3 py-4">
+          <div className="mb-3 px-3">
+            <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              Navigation
+            </h3>
+          </div>
+          
+          <div className="space-y-1">
+            {navigation.map((item) => {
+              const Icon = item.icon;
+              const active = isActive(item.path);
+              
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  onClick={() => setSidebarOpen(false)}
+                  className={`
+                    flex items-center gap-3 px-3 py-2.5 
+                    transition-all border-l-4 text-sm font-medium
+                    ${active
+                      ? 'border-red-600 bg-gray-100 text-gray-900 font-bold'
+                      : 'border-transparent text-gray-600 hover:bg-gray-50'
+                    }
+                  `}
+                >
+                  <Icon className="w-5 h-5" />
+                  <span>{item.name}</span>
+                </Link>
+              );
+            })}
+          </div>
+        </nav>
+
+        {/* Mobile Logout */}
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all font-medium text-sm rounded-md"
+          >
+            <LogOut className="w-5 h-5" />
+            <span>Logout</span>
+          </button>
+        </div>
+      </aside>
+
+      {/* MAIN CONTENT AREA */}
+      <main className="lg:ml-64 pb-20 lg:pb-0 min-h-screen">
+        <div className="p-4 sm:p-6 lg:p-8">
           <Routes>
             <Route index element={<AdminHome />} />
             <Route path="products" element={<ProductsManagement />} />
@@ -140,9 +199,9 @@ const AdminDashboard = () => {
         </div>
       </main>
 
-      {/* Bottom Navigation (Mobile Only) */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-30">
-        <div className="grid grid-cols-4 gap-1 p-2">
+      {/* BOTTOM NAVIGATION - Mobile Only (Classic Style) */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-30 safe-area-pb">
+        <div className="grid grid-cols-4">
           {navigation.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.path);
@@ -151,19 +210,32 @@ const AdminDashboard = () => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex flex-col items-center gap-1 py-2 rounded-xl transition-all ${
-                  active
-                    ? 'text-red-600 bg-red-50'
-                    : 'text-gray-600'
-                }`}
+                className={`
+                  flex flex-col items-center justify-center gap-1 py-2.5 
+                  transition-all border-t-2 touch-manipulation
+                  ${active
+                    ? 'border-red-600 text-red-600 bg-red-50'
+                    : 'border-transparent text-gray-600 active:bg-gray-50'
+                  }
+                `}
               >
                 <Icon className="w-6 h-6" />
-                <span className="text-xs font-medium">{item.name}</span>
+                <span className="text-[10px] font-semibold uppercase tracking-wide">
+                  {item.name}
+                </span>
               </Link>
             );
           })}
         </div>
       </nav>
+
+      {/* MOBILE MENU BUTTON - Floating (Optional quick access to sidebar) */}
+      <button
+        onClick={() => setSidebarOpen(true)}
+        className="lg:hidden fixed top-4 left-4 z-30 w-10 h-10 bg-white border border-gray-200 rounded-md shadow-md hover:shadow-lg flex items-center justify-center transition-all touch-manipulation"
+      >
+        <Menu className="w-5 h-5 text-gray-700" />
+      </button>
     </div>
   );
 };

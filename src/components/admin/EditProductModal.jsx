@@ -1,7 +1,7 @@
 // src/components/admin/EditProductModal.jsx
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { X, Save, Loader } from 'lucide-react';
+import { X, Save, Loader, AlertCircle, Check, Camera, Tag, Eye, EyeOff, Star } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { updateProduct } from '../../redux/slices/productSlice';
 import ImageUploader from './ImageUploader';
@@ -10,6 +10,9 @@ import { CATEGORIES, BRANDS, VEHICLE_MAKES, PRODUCT_CONDITIONS } from '../../uti
 const EditProductModal = ({ isOpen, onClose, product }) => {
   const dispatch = useDispatch();
   const { isLoading } = useSelector((state) => state.products);
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const [formData, setFormData] = useState({
     name: product.name || '',
@@ -24,7 +27,7 @@ const EditProductModal = ({ isOpen, onClose, product }) => {
     compatibility: product.compatibility || [],
     specifications: {
       condition: product.specifications?.condition || 'New',
-      origin: product.specifications?.origin || 'Ex-Japan',
+      origin: product.specifications?.origin || 'Japan',
       warranty: product.specifications?.warranty || '1 Year'
     },
     featured: product.featured || false,
@@ -55,6 +58,15 @@ const EditProductModal = ({ isOpen, onClose, product }) => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
+    
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  const handleBlur = (field) => {
+    setTouched(prev => ({ ...prev, [field]: true }));
   };
 
   const handleSpecChange = (field, value) => {
@@ -69,7 +81,7 @@ const EditProductModal = ({ isOpen, onClose, product }) => {
 
   const handleAddVehicle = () => {
     if (!vehicleInput.model || !vehicleInput.year) {
-      toast.error('Please fill vehicle model and year');
+      setErrors(prev => ({ ...prev, vehicle: 'Please enter model and year' }));
       return;
     }
 
@@ -79,6 +91,7 @@ const EditProductModal = ({ isOpen, onClose, product }) => {
     }));
 
     setVehicleInput({ make: 'Toyota', model: '', year: '' });
+    setErrors(prev => ({ ...prev, vehicle: '' }));
     toast.success('Vehicle added');
   };
 
@@ -89,17 +102,34 @@ const EditProductModal = ({ isOpen, onClose, product }) => {
     }));
   };
 
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.name.trim()) {
+      newErrors.name = 'Product name is required';
+    }
+    if (!formData.category) {
+      newErrors.category = 'Please select a category';
+    }
+    if (!formData.price || parseFloat(formData.price) <= 0) {
+      newErrors.price = 'Please set a valid price';
+    }
+    if (!formData.stock || parseInt(formData.stock) < 0) {
+      newErrors.stock = 'Stock quantity is required';
+    }
+    if (formData.images.length === 0) {
+      newErrors.images = 'At least one image is required';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validation
-    if (!formData.name || !formData.price || !formData.partNumber) {
-      toast.error('Please fill all required fields');
-      return;
-    }
-
-    if (formData.images.length === 0) {
-      toast.error('Please upload at least one image');
+    if (!validateForm()) {
+      toast.error('Please fix the errors before saving');
       return;
     }
 
@@ -116,195 +146,344 @@ const EditProductModal = ({ isOpen, onClose, product }) => {
     }));
     
     if (result.type === 'products/update/fulfilled') {
-      toast.success('Product updated successfully!');
-      onClose();
+      setShowSuccess(true);
+      setTimeout(() => {
+        setShowSuccess(false);
+        onClose();
+      }, 2000);
     }
   };
 
   if (!isOpen) return null;
 
+  // Success Modal
+  if (showSuccess) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+        <div className="bg-white rounded-2xl p-6 sm:p-8 text-center max-w-md w-full shadow-2xl animate-scale-in">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Check className="h-8 w-8 sm:h-10 sm:w-10 text-green-600" />
+          </div>
+          <h3 className="text-xl sm:text-2xl font-extrabold text-gray-900 mb-2">
+            Updated Successfully! ✓
+          </h3>
+          <p className="text-sm sm:text-base text-gray-600">
+            {formData.name} has been updated
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
+    <div className="fixed inset-0 z-50 overflow-hidden">
       {/* Backdrop */}
       <div 
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
 
-      {/* Modal */}
-      <div className="relative min-h-screen flex items-center justify-center p-4">
-        <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+      {/* Modal - Full screen on mobile, centered on desktop */}
+      <div className="fixed inset-0 flex items-end sm:items-center justify-center sm:p-4">
+        <div className="relative bg-white w-full sm:max-w-3xl sm:rounded-2xl rounded-t-3xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh] sm:max-h-[90vh]">
+          
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-blue-600 to-blue-700">
-            <div>
-              <h2 className="text-2xl font-bold text-white">Edit Product</h2>
-              <p className="text-sm text-blue-100 mt-1">{product.name}</p>
-            </div>
+          <div className="relative bg-gradient-to-r from-blue-600 to-blue-700 px-4 sm:px-6 py-4 sm:py-5">
             <button
               onClick={onClose}
-              className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors"
+              className="absolute top-3 right-3 sm:top-4 sm:right-4 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors touch-manipulation"
             >
-              <X className="w-6 h-6 text-white" />
+              <X className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </button>
+            
+            <div className="pr-12">
+              <h2 className="text-xl sm:text-2xl font-extrabold text-white">Edit Product</h2>
+              <p className="text-xs sm:text-sm text-blue-100 mt-1 line-clamp-1">
+                {product.name}
+              </p>
+            </div>
           </div>
 
-          {/* Content */}
-          <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
-            {/* Images */}
-            <div>
-              <h3 className="text-lg font-bold text-black mb-4">Product Photos</h3>
-              <ImageUploader
-                images={formData.images}
-                onChange={(images) => setFormData({ ...formData, images })}
-                maxImages={5}
-              />
+          {/* Error Summary Banner */}
+          {Object.keys(errors).length > 0 && (
+            <div className="bg-red-50 border-l-4 border-red-600 p-3 sm:p-4 m-4 rounded-r-lg">
+              <div className="flex items-start gap-2 sm:gap-3">
+                <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <h4 className="font-bold text-red-900 text-sm sm:text-base mb-1">
+                    Please fix these issues:
+                  </h4>
+                  <ul className="space-y-1 text-xs sm:text-sm text-red-800">
+                    {Object.entries(errors).map(([field, message]) => (
+                      <li key={field}>• {message}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
             </div>
+          )}
 
-            {/* Basic Info */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-bold text-black">Basic Information</h3>
-
+          {/* Content - Scrollable */}
+          <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
+            <div className="p-4 sm:p-6 space-y-5 sm:space-y-6">
+              
+              {/* Images Section */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Product Name *
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
+                <div className="flex items-center gap-2 mb-3">
+                  <Camera className="h-5 w-5 text-gray-600" />
+                  <h3 className="text-base sm:text-lg font-bold text-gray-900">Product Photos</h3>
+                  {formData.images.length === 0 && (
+                    <span className="text-xs text-red-600 font-semibold">Required</span>
+                  )}
+                </div>
+                <ImageUploader
+                  images={formData.images}
+                  onChange={(images) => {
+                    setFormData({ ...formData, images });
+                    if (errors.images) setErrors(prev => ({ ...prev, images: '' }));
+                  }}
+                  maxImages={5}
                 />
+                {errors.images && (
+                  <p className="text-red-600 text-xs mt-2 flex items-center gap-1">
+                    <AlertCircle className="h-3 w-3" />
+                    {errors.images}
+                  </p>
+                )}
               </div>
 
+              {/* Basic Information */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Part Number *
-                </label>
-                <input
-                  type="text"
-                  name="partNumber"
-                  value={formData.partNumber}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent uppercase"
-                  required
-                />
+                <div className="flex items-center gap-2 mb-3">
+                  <Tag className="h-5 w-5 text-gray-600" />
+                  <h3 className="text-base sm:text-lg font-bold text-gray-900">Basic Information</h3>
+                </div>
+                
+                <div className="space-y-4">
+                  {/* Product Name */}
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">
+                      Product Name <span className="text-red-600">*</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleInputChange}
+                        onBlur={() => handleBlur('name')}
+                        className={`w-full px-4 py-3 sm:py-3.5 border-2 rounded-xl text-sm sm:text-base transition-colors ${
+                          touched.name && errors.name 
+                            ? 'border-red-300 bg-red-50' 
+                            : touched.name && formData.name 
+                            ? 'border-green-300 bg-green-50' 
+                            : 'border-gray-300'
+                        } focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+                      />
+                      {touched.name && formData.name && !errors.name && (
+                        <Check className="absolute right-3 top-3 sm:top-3.5 h-5 w-5 text-green-600" />
+                      )}
+                    </div>
+                    {touched.name && errors.name && (
+                      <p className="text-red-600 text-xs mt-1.5 flex items-center gap-1">
+                        <AlertCircle className="h-3 w-3" />
+                        {errors.name}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Part Number */}
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">
+                      Part Number
+                    </label>
+                    <input
+                      type="text"
+                      name="partNumber"
+                      value={formData.partNumber}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 sm:py-3.5 border-2 border-gray-300 rounded-xl text-sm sm:text-base focus:ring-2 focus:ring-blue-500 focus:border-transparent uppercase"
+                    />
+                  </div>
+
+                  {/* Category & Brand */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-bold text-gray-900 mb-2">
+                        Category <span className="text-red-600">*</span>
+                      </label>
+                      <select
+                        name="category"
+                        value={formData.category}
+                        onChange={handleInputChange}
+                        onBlur={() => handleBlur('category')}
+                        className={`w-full px-4 py-3 sm:py-3.5 border-2 rounded-xl text-sm sm:text-base ${
+                          touched.category && errors.category 
+                            ? 'border-red-300 bg-red-50' 
+                            : 'border-gray-300'
+                        } focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+                      >
+                        <option value="">Select category...</option>
+                        {CATEGORIES.map(cat => (
+                          <option key={cat.slug} value={cat.slug}>{cat.name}</option>
+                        ))}
+                      </select>
+                      {touched.category && errors.category && (
+                        <p className="text-red-600 text-xs mt-1.5 flex items-center gap-1">
+                          <AlertCircle className="h-3 w-3" />
+                          {errors.category}
+                        </p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-bold text-gray-900 mb-2">
+                        Brand
+                      </label>
+                      <select
+                        name="brand"
+                        value={formData.brand}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-3 sm:py-3.5 border-2 border-gray-300 rounded-xl text-sm sm:text-base focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      >
+                        {BRANDS.map(brand => (
+                          <option key={brand} value={brand}>{brand}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">
+                      Description <span className="text-gray-500 text-xs font-normal">(Optional)</span>
+                    </label>
+                    <textarea
+                      name="description"
+                      value={formData.description}
+                      onChange={handleInputChange}
+                      rows={4}
+                      placeholder="Describe the product..."
+                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl text-sm sm:text-base focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                    />
+                  </div>
+                </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              {/* Pricing & Stock */}
+              <div className="space-y-4">
+                <h3 className="text-base sm:text-lg font-bold text-gray-900">Pricing & Stock</h3>
+
+                {/* Price & Stock Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">
+                      Price (KES) <span className="text-red-600">*</span>
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-3 sm:top-3.5 text-gray-500 text-sm sm:text-base">KES</span>
+                      <input
+                        type="number"
+                        name="price"
+                        value={formData.price}
+                        onChange={handleInputChange}
+                        onBlur={() => handleBlur('price')}
+                        className={`w-full pl-16 pr-4 py-3 sm:py-3.5 border-2 rounded-xl text-sm sm:text-base ${
+                          touched.price && errors.price 
+                            ? 'border-red-300 bg-red-50' 
+                            : 'border-gray-300'
+                        } focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+                        min="0"
+                        step="0.01"
+                      />
+                    </div>
+                    {touched.price && errors.price && (
+                      <p className="text-red-600 text-xs mt-1.5 flex items-center gap-1">
+                        <AlertCircle className="h-3 w-3" />
+                        {errors.price}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-gray-900 mb-2">
+                      Stock Quantity <span className="text-red-600">*</span>
+                    </label>
+                    <input
+                      type="number"
+                      name="stock"
+                      value={formData.stock}
+                      onChange={handleInputChange}
+                      onBlur={() => handleBlur('stock')}
+                      className={`w-full px-4 py-3 sm:py-3.5 border-2 rounded-xl text-sm sm:text-base ${
+                        touched.stock && errors.stock 
+                          ? 'border-red-300 bg-red-50' 
+                          : 'border-gray-300'
+                      } focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+                      min="0"
+                    />
+                    {touched.stock && errors.stock && (
+                      <p className="text-red-600 text-xs mt-1.5 flex items-center gap-1">
+                        <AlertCircle className="h-3 w-3" />
+                        {errors.stock}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Original Price */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Category *
+                  <label className="block text-sm font-bold text-gray-900 mb-2">
+                    Original Price <span className="text-gray-500 text-xs font-normal">(For discounts)</span>
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-3 sm:top-3.5 text-gray-500 text-sm sm:text-base">KES</span>
+                    <input
+                      type="number"
+                      name="originalPrice"
+                      value={formData.originalPrice}
+                      onChange={handleInputChange}
+                      className="w-full pl-16 pr-4 py-3 sm:py-3.5 border-2 border-gray-300 rounded-xl text-sm sm:text-base focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      min="0"
+                      step="0.01"
+                    />
+                  </div>
+                  {formData.originalPrice && parseFloat(formData.originalPrice) > parseFloat(formData.price) && (
+                    <p className="text-green-600 text-xs mt-1.5 flex items-center gap-1">
+                      <Tag className="h-3 w-3" />
+                      {Math.round(((formData.originalPrice - formData.price) / formData.originalPrice) * 100)}% discount
+                    </p>
+                  )}
+                </div>
+
+                {/* Condition */}
+                <div>
+                  <label className="block text-sm font-bold text-gray-900 mb-2">
+                    Condition
                   </label>
                   <select
-                    name="category"
-                    value={formData.category}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
+                    value={formData.specifications.condition}
+                    onChange={(e) => handleSpecChange('condition', e.target.value)}
+                    className="w-full px-4 py-3 sm:py-3.5 border-2 border-gray-300 rounded-xl text-sm sm:text-base focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
-                    <option value="">Select...</option>
-                    {CATEGORIES.map(cat => (
-                      <option key={cat.slug} value={cat.slug}>{cat.name}</option>
+                    {PRODUCT_CONDITIONS.map(cond => (
+                      <option key={cond.value} value={cond.value}>{cond.label}</option>
                     ))}
                   </select>
                 </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Brand *
-                  </label>
-                  <select
-                    name="brand"
-                    value={formData.brand}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
-                  >
-                    {BRANDS.map(brand => (
-                      <option key={brand} value={brand}>{brand}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Description
-                </label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  rows={4}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                />
-              </div>
-            </div>
-
-            {/* Pricing & Stock */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-bold text-black">Pricing & Stock</h3>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Price (KES) *
-                  </label>
-                  <input
-                    type="number"
-                    name="price"
-                    value={formData.price}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
-                    min="0"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Stock Quantity *
-                  </label>
-                  <input
-                    type="number"
-                    name="stock"
-                    value={formData.stock}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
-                    min="0"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Condition
-                </label>
-                <select
-                  value={formData.specifications.condition}
-                  onChange={(e) => handleSpecChange('condition', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  {PRODUCT_CONDITIONS.map(cond => (
-                    <option key={cond.value} value={cond.value}>{cond.label}</option>
-                  ))}
-                </select>
               </div>
 
               {/* Compatible Vehicles */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Compatible Vehicles
+                <label className="block text-sm font-bold text-gray-900 mb-2">
+                  Compatible Vehicles <span className="text-gray-500 text-xs font-normal">(Optional)</span>
                 </label>
                 
                 <div className="grid grid-cols-3 gap-2 mb-2">
                   <select
                     value={vehicleInput.make}
                     onChange={(e) => setVehicleInput({ ...vehicleInput, make: e.target.value })}
-                    className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                    className="px-3 py-2.5 sm:py-3 border-2 border-gray-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     {VEHICLE_MAKES.map(make => (
                       <option key={make} value={make}>{make}</option>
@@ -315,36 +494,43 @@ const EditProductModal = ({ isOpen, onClose, product }) => {
                     placeholder="Model"
                     value={vehicleInput.model}
                     onChange={(e) => setVehicleInput({ ...vehicleInput, model: e.target.value })}
-                    className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                    className="px-3 py-2.5 sm:py-3 border-2 border-gray-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                   <input
                     type="text"
                     placeholder="Year"
                     value={vehicleInput.year}
                     onChange={(e) => setVehicleInput({ ...vehicleInput, year: e.target.value })}
-                    className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                    className="px-3 py-2.5 sm:py-3 border-2 border-gray-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
 
                 <button
                   type="button"
                   onClick={handleAddVehicle}
-                  className="w-full py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-lg text-sm transition-colors"
+                  className="w-full py-2.5 sm:py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-lg text-sm transition-colors touch-manipulation"
                 >
                   + Add Vehicle
                 </button>
 
+                {errors.vehicle && (
+                  <p className="text-red-600 text-xs mt-1.5 flex items-center gap-1">
+                    <AlertCircle className="h-3 w-3" />
+                    {errors.vehicle}
+                  </p>
+                )}
+
                 {formData.compatibility.length > 0 && (
                   <div className="mt-3 space-y-2">
                     {formData.compatibility.map((vehicle, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <span className="text-sm font-medium text-gray-700">
+                      <div key={index} className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
+                        <span className="text-xs sm:text-sm font-medium text-gray-900">
                           {vehicle.make} {vehicle.model} ({vehicle.year})
                         </span>
                         <button
                           type="button"
                           onClick={() => handleRemoveVehicle(index)}
-                          className="text-red-600 hover:text-red-700"
+                          className="text-red-600 hover:text-red-700 touch-manipulation"
                         >
                           <X className="w-4 h-4" />
                         </button>
@@ -354,51 +540,72 @@ const EditProductModal = ({ isOpen, onClose, product }) => {
                 )}
               </div>
 
-              {/* Feature Toggles */}
-              <div className="space-y-3">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    name="isVisible"
-                    checked={formData.isVisible}
-                    onChange={handleInputChange}
-                    className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
-                  />
-                  <span className="text-sm font-medium text-gray-700">Visible on Website</span>
-                </label>
+              {/* Settings */}
+              <div>
+                <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3">Settings</h3>
+                <div className="space-y-3">
+                  <label className="flex items-center gap-3 cursor-pointer p-3 border-2 border-gray-200 rounded-lg hover:border-blue-300 transition-colors">
+                    <input
+                      type="checkbox"
+                      name="isVisible"
+                      checked={formData.isVisible}
+                      onChange={handleInputChange}
+                      className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+                    />
+                    <div className="flex items-center gap-2 flex-1">
+                      {formData.isVisible ? (
+                        <Eye className="h-5 w-5 text-blue-600" />
+                      ) : (
+                        <EyeOff className="h-5 w-5 text-gray-400" />
+                      )}
+                      <div>
+                        <span className="text-sm font-bold text-gray-900 block">Visible on Website</span>
+                        <span className="text-xs text-gray-500">
+                          {formData.isVisible ? 'Customers can see this product' : 'Hidden from customers'}
+                        </span>
+                      </div>
+                    </div>
+                  </label>
 
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    name="featured"
-                    checked={formData.featured}
-                    onChange={handleInputChange}
-                    className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
-                  />
-                  <span className="text-sm font-medium text-gray-700">Featured Product</span>
-                </label>
+                  <label className="flex items-center gap-3 cursor-pointer p-3 border-2 border-gray-200 rounded-lg hover:border-blue-300 transition-colors">
+                    <input
+                      type="checkbox"
+                      name="featured"
+                      checked={formData.featured}
+                      onChange={handleInputChange}
+                      className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+                    />
+                    <div className="flex items-center gap-2">
+                      <Star className="h-5 w-5 text-yellow-500" />
+                      <span className="text-sm font-medium text-gray-900">Featured Product</span>
+                    </div>
+                  </label>
 
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    name="bestSeller"
-                    checked={formData.bestSeller}
-                    onChange={handleInputChange}
-                    className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
-                  />
-                  <span className="text-sm font-medium text-gray-700">Best Seller</span>
-                </label>
+                  <label className="flex items-center gap-3 cursor-pointer p-3 border-2 border-gray-200 rounded-lg hover:border-blue-300 transition-colors">
+                    <input
+                      type="checkbox"
+                      name="bestSeller"
+                      checked={formData.bestSeller}
+                      onChange={handleInputChange}
+                      className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+                    />
+                    <div className="flex items-center gap-2">
+                      <Tag className="h-5 w-5 text-red-600" />
+                      <span className="text-sm font-medium text-gray-900">Best Seller</span>
+                    </div>
+                  </label>
+                </div>
               </div>
             </div>
           </form>
 
-          {/* Footer */}
-          <div className="p-6 border-t border-gray-200 bg-gray-50">
+          {/* Footer - Sticky Buttons */}
+          <div className="border-t border-gray-200 bg-gray-50 p-4 sm:p-6">
             <div className="flex gap-3">
               <button
                 type="button"
                 onClick={onClose}
-                className="flex-1 py-3 px-6 border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-semibold rounded-xl transition-colors"
+                className="flex-1 sm:flex-none sm:px-6 py-3 sm:py-3.5 border-2 border-gray-300 hover:border-gray-400 bg-white text-gray-700 font-bold rounded-xl transition-colors touch-manipulation text-sm sm:text-base"
               >
                 Cancel
               </button>
@@ -407,17 +614,17 @@ const EditProductModal = ({ isOpen, onClose, product }) => {
                 type="button"
                 onClick={handleSubmit}
                 disabled={isLoading}
-                className="flex-1 flex items-center justify-center gap-2 py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 flex items-center justify-center gap-2 py-3 sm:py-3.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg touch-manipulation text-sm sm:text-base"
               >
                 {isLoading ? (
                   <>
-                    <Loader className="w-5 h-5 animate-spin" />
+                    <Loader className="w-4 w-4 sm:w-5 sm:h-5 animate-spin" />
                     <span>Updating...</span>
                   </>
                 ) : (
                   <>
-                    <Save className="w-5 h-5" />
-                    <span>Update Product</span>
+                    <Save className="w-4 w-4 sm:w-5 sm:h-5" />
+                    <span>Save Changes</span>
                   </>
                 )}
               </button>

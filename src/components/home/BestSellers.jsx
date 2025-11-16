@@ -1,9 +1,9 @@
 // src/components/home/BestSellers.jsx
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import ProductCard from '../products/ProductCard';
-import { Flame, TrendingUp, ChevronRight } from 'lucide-react';
+import { Flame, ChevronRight, Tag } from 'lucide-react';
 import Loader from '../common/Loader';
 
 const BestSellers = () => {
@@ -11,7 +11,7 @@ const BestSellers = () => {
 
   if (isLoading) {
     return (
-      <section className="section bg-charcoal">
+      <section className="py-8 sm:py-12 bg-white dark:bg-dark">
         <div className="container-custom">
           <Loader size="lg" />
         </div>
@@ -23,112 +23,63 @@ const BestSellers = () => {
     return null;
   }
 
-  return (
-    <section className="section bg-charcoal">
-      <div className="container-custom">
-        {/* Section Header */}
-        <div className="text-center mb-12">
-          <div className="flex items-center justify-center mb-4">
-            <Flame className="h-10 w-10 text-primary mr-3 animate-pulse" />
-            <h2 className="heading-lg text-white">
-              BEST <span className="text-primary">SELLERS</span>
-            </h2>
-            <Flame className="h-10 w-10 text-primary ml-3 animate-pulse" />
-          </div>
-          <p className="text-gray-400 text-lg mb-6">
-            Hot deals on our most popular parts. Limited stock available!
-          </p>
+  // Filter only products with discounts
+  const discountedProducts = bestSellers.filter(
+    product => product.originalPrice > product.price
+  );
 
-          {/* Deal Timer (Static for now) */}
-          <div className="inline-flex items-center space-x-4 bg-gradient-to-r from-primary to-red-700 px-8 py-4 rounded-xl shadow-xl">
-            <span className="text-white font-semibold">Hot Deals</span>
-            <div className="flex space-x-2">
-              {['4', '23', '45'].map((num, i) => (
-                <React.Fragment key={i}>
-                  <div className="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-2 min-w-[60px]">
-                    <div className="text-2xl font-bold text-white">{num}</div>
-                    <div className="text-xs text-white/80">
-                      {i === 0 ? 'Hours' : i === 1 ? 'Min' : 'Sec'}
-                    </div>
-                  </div>
-                  {i < 2 && <span className="text-white text-2xl">:</span>}
-                </React.Fragment>
-              ))}
+  return (
+    <section className="py-8 sm:py-12 lg:py-16 bg-gray-50 dark:bg-charcoal">
+      <div className="container-custom">
+        
+        {/* Header - Minimal & Clean */}
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <Flame className="h-5 w-5 sm:h-6 sm:w-6 text-red-600 dark:text-primary" />
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-gray-900 dark:text-white">
+              HOT DEALS
+            </h2>
+          </div>
+          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+            Limited time discounts on selected parts
+          </p>
+        </div>
+
+        {/* Special Offer Banner - Optional (if you have bundle deals) */}
+        {discountedProducts.length > 0 && (
+          <div className="mb-6 sm:mb-8">
+            <div className="bg-gradient-to-r from-red-600 to-red-700 dark:from-primary dark:to-red-700 rounded-lg sm:rounded-xl p-4 sm:p-6 text-center shadow-lg">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <Tag className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                <span className="text-white font-bold text-sm sm:text-base">
+                  SPECIAL OFFER
+                </span>
+              </div>
+              <p className="text-white text-xs sm:text-sm">
+                Save up to <span className="font-extrabold text-base sm:text-lg">40%</span> on premium auto parts
+              </p>
             </div>
           </div>
+        )}
+
+        {/* Products Grid - Mobile First */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 lg:gap-6 mb-8">
+          {(discountedProducts.length > 0 ? discountedProducts : bestSellers)
+            .slice(0, 8)
+            .map((product) => (
+              <ProductCard key={product._id} product={product} />
+            ))}
         </div>
 
-        {/* Best Seller Products Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
-          {bestSellers.slice(0, 4).map((product) => (
-            <ProductCard key={product._id} product={product} />
-          ))}
-        </div>
-
-        {/* Stats/Features */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          {[
-            { icon: TrendingUp, label: 'Top Rated', value: '4.8★' },
-            { icon: Flame, label: 'Hot Deals', value: 'Save 35%' },
-            { icon: '🚚', label: 'Fast Delivery', value: 'Same Day' },
-            { icon: '✅', label: 'Warranty', value: '1 Year' }
-          ].map((stat, index) => {
-            const Icon = stat.icon;
-            return (
-              <div
-                key={index}
-                className="card p-6 text-center hover:shadow-xl transition-shadow"
-              >
-                {typeof Icon === 'string' ? (
-                  <span className="text-4xl mb-2 block">{Icon}</span>
-                ) : (
-                  <Icon className="h-8 w-8 text-primary mx-auto mb-2" />
-                )}
-                <p className="text-sm text-gray-400 mb-1">{stat.label}</p>
-                <p className="text-lg font-bold text-white">{stat.value}</p>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* View All Button */}
+        {/* Simple CTA */}
         <div className="text-center">
           <Link
             to="/parts?sort=soldCount"
-            className="btn-primary inline-flex items-center gap-2"
+            className="inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 active:bg-red-800 dark:bg-primary dark:hover:bg-red-700 text-white font-bold text-sm sm:text-base px-6 sm:px-8 py-3 sm:py-3.5 rounded-lg sm:rounded-xl shadow-lg hover:shadow-xl transition-all touch-manipulation"
           >
-            <span>View All Best Sellers</span>
-            <ChevronRight className="h-5 w-5" />
+            <span>View All Deals</span>
+            <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
           </Link>
-        </div>
-
-        {/* Live Purchase Ticker */}
-        <div className="mt-12 bg-navy/50 backdrop-blur-sm rounded-xl py-4 px-6 overflow-hidden">
-          <div className="flex items-center mb-2">
-            <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse mr-2"></div>
-            <span className="text-white font-semibold text-sm">Recent Purchases</span>
-          </div>
-          <div className="flex space-x-12 animate-scroll">
-            {[
-              { name: 'John from Westlands', item: 'Shock Absorbers', time: '2 min ago' },
-              { name: 'Mary from Karen', item: 'Brake Pads', time: '5 min ago' },
-              { name: 'David from Ngong', item: 'Engine Mount', time: '8 min ago' },
-              { name: 'Sarah from CBD', item: 'Coil Springs', time: '12 min ago' },
-              { name: 'John from Westlands', item: 'Shock Absorbers', time: '2 min ago' },
-              { name: 'Mary from Karen', item: 'Brake Pads', time: '5 min ago' }
-            ].map((purchase, index) => (
-              <div
-                key={index}
-                className="flex-shrink-0 flex items-center space-x-3 text-gray-300 whitespace-nowrap"
-              >
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-sm">
-                  <strong>{purchase.name}</strong> bought{' '}
-                  <span className="text-primary">{purchase.item}</span> - {purchase.time}
-                </span>
-              </div>
-            ))}
-          </div>
         </div>
       </div>
     </section>
