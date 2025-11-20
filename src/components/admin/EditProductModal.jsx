@@ -272,12 +272,12 @@ const EditProductModal = ({ isOpen, onClose, product }) => {
                         value={formData.name}
                         onChange={handleInputChange}
                         onBlur={() => handleBlur('name')}
-                        className={`w-full px-4 py-3 sm:py-3.5 border-2 rounded-xl text-sm sm:text-base transition-colors ${
+                        className={`w-full px-4 py-3 sm:py-3.5 border-2 rounded-xl text-sm sm:text-base transition-colors text-gray-900 placeholder:text-gray-400 ${
                           touched.name && errors.name 
                             ? 'border-red-300 bg-red-50' 
                             : touched.name && formData.name 
                             ? 'border-green-300 bg-green-50' 
-                            : 'border-gray-300'
+                            : 'border-gray-300 bg-white'
                         } focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
                       />
                       {touched.name && formData.name && !errors.name && (
@@ -302,7 +302,7 @@ const EditProductModal = ({ isOpen, onClose, product }) => {
                       name="partNumber"
                       value={formData.partNumber}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 sm:py-3.5 border-2 border-gray-300 rounded-xl text-sm sm:text-base focus:ring-2 focus:ring-blue-500 focus:border-transparent uppercase"
+                      className="w-full px-4 py-3 sm:py-3.5 border-2 border-gray-300 bg-white rounded-xl text-sm sm:text-base text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent uppercase"
                     />
                   </div>
 
@@ -317,10 +317,10 @@ const EditProductModal = ({ isOpen, onClose, product }) => {
                         value={formData.category}
                         onChange={handleInputChange}
                         onBlur={() => handleBlur('category')}
-                        className={`w-full px-4 py-3 sm:py-3.5 border-2 rounded-xl text-sm sm:text-base ${
+                        className={`w-full px-4 py-3 sm:py-3.5 border-2 rounded-xl text-sm sm:text-base text-gray-900 ${
                           touched.category && errors.category 
                             ? 'border-red-300 bg-red-50' 
-                            : 'border-gray-300'
+                            : 'border-gray-300 bg-white'
                         } focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
                       >
                         <option value="">Select category...</option>
@@ -344,7 +344,7 @@ const EditProductModal = ({ isOpen, onClose, product }) => {
                         name="brand"
                         value={formData.brand}
                         onChange={handleInputChange}
-                        className="w-full px-4 py-3 sm:py-3.5 border-2 border-gray-300 rounded-xl text-sm sm:text-base focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-4 py-3 sm:py-3.5 border-2 border-gray-300 bg-white rounded-xl text-sm sm:text-base text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       >
                         {BRANDS.map(brand => (
                           <option key={brand} value={brand}>{brand}</option>
@@ -364,7 +364,7 @@ const EditProductModal = ({ isOpen, onClose, product }) => {
                       onChange={handleInputChange}
                       rows={4}
                       placeholder="Describe the product..."
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl text-sm sm:text-base focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                      className="w-full px-4 py-3 border-2 border-gray-300 bg-white rounded-xl text-sm sm:text-base text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                     />
                   </div>
                 </div>
@@ -388,10 +388,10 @@ const EditProductModal = ({ isOpen, onClose, product }) => {
                         value={formData.price}
                         onChange={handleInputChange}
                         onBlur={() => handleBlur('price')}
-                        className={`w-full pl-16 pr-4 py-3 sm:py-3.5 border-2 rounded-xl text-sm sm:text-base ${
+                        className={`w-full pl-16 pr-4 py-3 sm:py-3.5 border-2 rounded-xl text-sm sm:text-base text-gray-900 placeholder:text-gray-400 ${
                           touched.price && errors.price 
                             ? 'border-red-300 bg-red-50' 
-                            : 'border-gray-300'
+                            : 'border-gray-300 bg-white'
                         } focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
                         min="0"
                         step="0.01"
@@ -415,10 +415,10 @@ const EditProductModal = ({ isOpen, onClose, product }) => {
                       value={formData.stock}
                       onChange={handleInputChange}
                       onBlur={() => handleBlur('stock')}
-                      className={`w-full px-4 py-3 sm:py-3.5 border-2 rounded-xl text-sm sm:text-base ${
+                      className={`w-full px-4 py-3 sm:py-3.5 border-2 rounded-xl text-sm sm:text-base text-gray-900 placeholder:text-gray-400 ${
                         touched.stock && errors.stock 
                           ? 'border-red-300 bg-red-50' 
-                          : 'border-gray-300'
+                          : 'border-gray-300 bg-white'
                       } focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
                       min="0"
                     />
@@ -443,7 +443,7 @@ const EditProductModal = ({ isOpen, onClose, product }) => {
                       name="originalPrice"
                       value={formData.originalPrice}
                       onChange={handleInputChange}
-                      className="w-full pl-16 pr-4 py-3 sm:py-3.5 border-2 border-gray-300 rounded-xl text-sm sm:text-base focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full pl-16 pr-4 py-3 sm:py-3.5 border-2 border-gray-300 bg-white rounded-xl text-sm sm:text-base text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       min="0"
                       step="0.01"
                     />
@@ -464,7 +464,7 @@ const EditProductModal = ({ isOpen, onClose, product }) => {
                   <select
                     value={formData.specifications.condition}
                     onChange={(e) => handleSpecChange('condition', e.target.value)}
-                    className="w-full px-4 py-3 sm:py-3.5 border-2 border-gray-300 rounded-xl text-sm sm:text-base focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 sm:py-3.5 border-2 border-gray-300 bg-white rounded-xl text-sm sm:text-base text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     {PRODUCT_CONDITIONS.map(cond => (
                       <option key={cond.value} value={cond.value}>{cond.label}</option>
@@ -483,7 +483,7 @@ const EditProductModal = ({ isOpen, onClose, product }) => {
                   <select
                     value={vehicleInput.make}
                     onChange={(e) => setVehicleInput({ ...vehicleInput, make: e.target.value })}
-                    className="px-3 py-2.5 sm:py-3 border-2 border-gray-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="px-3 py-2.5 sm:py-3 border-2 border-gray-300 bg-white rounded-lg text-xs sm:text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     {VEHICLE_MAKES.map(make => (
                       <option key={make} value={make}>{make}</option>
@@ -494,14 +494,14 @@ const EditProductModal = ({ isOpen, onClose, product }) => {
                     placeholder="Model"
                     value={vehicleInput.model}
                     onChange={(e) => setVehicleInput({ ...vehicleInput, model: e.target.value })}
-                    className="px-3 py-2.5 sm:py-3 border-2 border-gray-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="px-3 py-2.5 sm:py-3 border-2 border-gray-300 bg-white rounded-lg text-xs sm:text-sm text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                   <input
                     type="text"
                     placeholder="Year"
                     value={vehicleInput.year}
                     onChange={(e) => setVehicleInput({ ...vehicleInput, year: e.target.value })}
-                    className="px-3 py-2.5 sm:py-3 border-2 border-gray-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="px-3 py-2.5 sm:py-3 border-2 border-gray-300 bg-white rounded-lg text-xs sm:text-sm text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
 
