@@ -12,15 +12,17 @@ export const VEHICLES = [
     { name: 'Nissan Wingroad', slug: 'wingroad', image: '/wingroad.jpg' },
   ];
   
-  // Categories
-  export const CATEGORIES = [
-    { name: 'Suspension', slug: 'suspension', icon: 'wrench', image: '/suspe.jpeg' },
-    { name: 'Engine Parts', slug: 'engine', icon: 'gauge', image: '/engine.jpg' },
-    { name: 'Brakes', slug: 'brakes', icon: 'circle-dot', image: '/brakedisk.png' },
-    { name: 'Electrical', slug: 'electrical', icon: 'zap', image: '/electrical.jpeg' },
-    { name: 'Body Parts', slug: 'body', icon: 'paint-bucket', image: 'body2.jpg' },
-  ];
-  
+ // Categories - Updated to match seed.js slugs
+export const CATEGORIES = [
+  { name: 'Suspension & Steering', slug: 'suspension-steering', icon: 'wrench', image: '/suspe.jpeg' },
+  { name: 'Engine Parts', slug: 'engine-parts', icon: 'gauge', image: '/engine.jpg' },
+  { name: 'Braking System', slug: 'braking-system', icon: 'circle-dot', image: '/brakedisk.png' },
+  { name: 'Electrical & Ignition', slug: 'electrical-ignition', icon: 'zap', image: '/electrical.jpeg' },
+  { name: 'Cooling System', slug: 'cooling-system', icon: 'droplet', image: '/cooling.jpg' },
+  { name: 'Transmission & Clutch', slug: 'transmission-clutch', icon: 'settings', image: '/transmission.jpg' },
+  { name: 'Body & Exterior', slug: 'body-exterior', icon: 'paint-bucket', image: '/body2.jpg' },
+  { name: 'Interior & Accessories', slug: 'interior-accessories', icon: 'box', image: '/interior.jpg' },
+];
   // Brands
   export const BRANDS = [
     'Bosch',
